@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { Plus } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 
@@ -23,6 +24,11 @@ export function TasksPanel({
   onToggle,
 }: TasksPanelProps) {
   const countLabel = `${rituals.length} ${rituals.length === 1 ? "ritual" : "rituals"}`
+  const orderedRituals = useMemo(() => {
+    const remaining = rituals.filter((ritual) => !completedIds.has(ritual.id))
+    const done = rituals.filter((ritual) => completedIds.has(ritual.id))
+    return [...remaining, ...done]
+  }, [completedIds, rituals])
 
   return (
     <motion.section
@@ -56,20 +62,24 @@ export function TasksPanel({
         <span className="text-white">{countLabel}</span>
         <span>resets tomorrow</span>
       </div>
-      <ul className="m-0 grid list-none gap-[11px] p-0" aria-label="Daily tasks">
+      <motion.ul
+        className="m-0 grid list-none gap-[11px] p-0"
+        aria-label="Daily tasks"
+        layout
+        transition={{ layout: { type: "spring", stiffness: 420, damping: 34, mass: 0.85 } }}
+      >
         <AnimatePresence initial={false}>
-          {rituals.map((ritual, index) => (
+          {orderedRituals.map((ritual) => (
             <TaskCard
               key={ritual.id}
               ritual={ritual}
-              index={index}
               completed={completedIds.has(ritual.id)}
               onEdit={() => onEdit(ritual)}
               onToggle={(origin) => onToggle(ritual.id, origin)}
             />
           ))}
         </AnimatePresence>
-      </ul>
+      </motion.ul>
       {rituals.length === 0 ? <EmptyState onAdd={onAdd} /> : null}
     </motion.section>
   )

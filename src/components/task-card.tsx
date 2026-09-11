@@ -10,12 +10,11 @@ import { type Ritual } from "@/lib/rituals"
 type TaskCardProps = {
   ritual: Ritual
   completed: boolean
-  index: number
   onToggle: (origin: HTMLElement) => void
   onEdit: () => void
 }
 
-export function TaskCard({ ritual, completed, index, onToggle, onEdit }: TaskCardProps) {
+export function TaskCard({ ritual, completed, onToggle, onEdit }: TaskCardProps) {
   const rowRef = useRef<HTMLLIElement>(null)
   const holdTimer = useRef<number | null>(null)
   const start = useRef({ x: 0, y: 0 })
@@ -43,17 +42,18 @@ export function TaskCard({ ritual, completed, index, onToggle, onEdit }: TaskCar
     <motion.li
       ref={rowRef}
       layout
-      initial={{ opacity: 0, y: 14, scale: 0.97 }}
-      animate={{
-        opacity: completed ? 0.58 : 1,
-        y: 0,
-        scale: 1,
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: completed ? 0.58 : 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{
+        layout: { type: "spring", stiffness: 420, damping: 34, mass: 0.85 },
+        opacity: { duration: 0.28 },
+        y: { duration: 0.32, ease: [0.2, 0.8, 0.2, 1] },
       }}
-      exit={{ opacity: 0, scale: 0.96, y: 8 }}
-      transition={{ duration: 0.32, delay: index * 0.04, ease: [0.2, 0.9, 0.25, 1.2] }}
       className={cn(
         "task-item relative min-h-[86px] rounded-[24px] border-2 border-ink outline-none max-sm:min-h-[78px] max-sm:rounded-[21px]",
-        "shadow-[0_4px_0_rgba(255,255,255,0.13)] transition-[filter] duration-200 hover:brightness-[1.025]"
+        "shadow-[0_4px_0_rgba(255,255,255,0.13)] transition-[filter] duration-200 hover:brightness-[1.025]",
+        completed && "completed"
       )}
       style={{ background: ritual.color }}
       tabIndex={0}
